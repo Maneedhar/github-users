@@ -3,6 +3,15 @@ import styled from 'styled-components';
 import { GithubContext } from '../context/context';
 import { ExampleChart, Pie3D, Column3D, Bar3D, Doughnut2D } from './Charts';
 
+const sortAndSlice = (obj, prop = 'value') => {
+  return Object.values(obj)
+    .sort((prev, next) => next[prop] - prev[prop])
+    .map((item) => {
+      return { ...item, value: item[prop] };
+    })
+    .slice(0, 5);
+};
+
 const Repos = () => {
   const { repos } = useContext(GithubContext);
 
@@ -22,42 +31,28 @@ const Repos = () => {
     return total;
   }, {});
 
-  const mostUsed = Object.values(languages)
-    .sort((prev, next) => {
-      return next.value - prev.value;
-    })
-    .slice(0, 5);
+  const mostUsed = sortAndSlice(languages);
 
-  const mostStarred = Object.values(languages)
-    .sort((prev, next) => {
-      return next.stars - prev.stars;
-    })
-    .map((item) => {
-      return { ...item, value: item.stars };
-    })
-    .slice(0, 5);
+  const mostStarred = sortAndSlice(languages, 'stars');
 
-  const chartData = [
-    {
-      label: 'HTML',
-      value: '20',
-    },
-    {
-      label: 'CSS',
-      value: '23',
-    },
-    {
-      label: 'JavaScript',
-      value: '76',
-    },
-  ];
+  const popularRepos = repos.reduce((total, item) => {
+    const { name, forks, stargazers_count } = item;
+    total[name] = { label: name, stars: stargazers_count, forks };
+    // total.forks[name] = { label: name, value: forks };
+
+    return total;
+  }, {});
+
+  const mostPopular = sortAndSlice(popularRepos, 'stars');
+  const mostForked = sortAndSlice(popularRepos, 'forks');
 
   return (
     <section className="section">
       <Wrapper className="section-center">
         <Pie3D data={mostUsed} />
-        <div></div>
+        <Column3D data={mostPopular} />
         <Doughnut2D data={mostStarred} />
+        <Bar3D data={mostForked} />
       </Wrapper>
     </section>
   );
