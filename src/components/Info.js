@@ -8,7 +8,6 @@ const UserInfo = () => {
   const { githubUser } = useContext(GithubContext);
 
   const { public_repos, followers, following, public_gists } = githubUser;
-  console.log(public_repos, followers, following, public_gists);
 
   const items = [
     {
@@ -42,7 +41,7 @@ const UserInfo = () => {
       <Wrapper className="section-center">
         {items.map((item) => {
           return (
-            <Item key={item.value} {...item}>
+            <Item key={item.label} {...item}>
               item
             </Item>
           );

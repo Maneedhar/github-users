@@ -30,7 +30,7 @@ const ChartComponent = ({ data }) => {
         theme: 'fusion',
       },
       // Chart Data
-      data: data,
+      data,
     },
   };
   return <ReactFC {...chartConfigs} />;
