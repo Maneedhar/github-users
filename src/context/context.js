@@ -14,8 +14,37 @@ const GithubProvider = ({ children }) => {
   const [followers, setFollowers] = useState(mockFollowers);
 
   const [requests, setRequests] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState({ show: false, msg: '' });
+
+  const searchGithubUser = async (user) => {
+    // console.log(user);
+    toggleErrors();
+    setIsLoading(true);
+    try {
+      const res = await axios(`${rootUrl}/users/${user}`);
+      setGithubUser(res.data);
+
+      const { login, followers_url } = res.data;
+
+      await Promise.allSettled([
+        axios(`${rootUrl}/users/${login}/repos?per_page=100`),
+        axios(`${followers_url}?per_page=100`),
+      ]).then(([repos, followers]) => {
+        if (repos.status === 'fullfilled') {
+          setRepos(repos.value.data);
+        }
+        if (repos.status === 'fullfilled') {
+          setFollowers(followers.value.data);
+        }
+      });
+    } catch (error) {
+      toggleErrors(true, "User doesn't exist");
+      console.log(error.message);
+    }
+    checkRequests();
+    setIsLoading(false);
+  };
 
   const checkRequests = () => {
     axios
@@ -38,7 +67,6 @@ const GithubProvider = ({ children }) => {
   };
 
   const toggleErrors = (show = false, msg = '') => {
-    // console.log('toggleErrors ~ msg', msg);
     setError({ show, msg });
   };
 
@@ -46,7 +74,15 @@ const GithubProvider = ({ children }) => {
 
   return (
     <GithubContext.Provider
-      value={{ githubUser, repos, followers, requests, error }}
+      value={{
+        githubUser,
+        repos,
+        followers,
+        requests,
+        error,
+        searchGithubUser,
+        isLoading,
+      }}
     >
       {children}
     </GithubContext.Provider>
