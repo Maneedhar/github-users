@@ -31,10 +31,10 @@ const GithubProvider = ({ children }) => {
         axios(`${rootUrl}/users/${login}/repos?per_page=100`),
         axios(`${followers_url}?per_page=100`),
       ]).then(([repos, followers]) => {
-        if (repos.status === 'fullfilled') {
+        if (repos.status === 'fulfilled') {
           setRepos(repos.value.data);
         }
-        if (repos.status === 'fullfilled') {
+        if (followers.status === 'fulfilled') {
           setFollowers(followers.value.data);
         }
       });
@@ -50,7 +50,6 @@ const GithubProvider = ({ children }) => {
     axios
       .get(`${rootUrl}/rate_limit`)
       .then(({ data }) => {
-        // console.log(data);
         let {
           rate: { remaining },
         } = data;
